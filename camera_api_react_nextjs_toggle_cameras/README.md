@@ -1,3 +1,11 @@
+# Web API of camera 
+In this project we will:
+1. activete the web api camera.
+2. get the list of all avaialble cameras (in mobile phone we might have even 4 cameras).
+3. allow the user to toggle and select between those cameras.
+
+------------------------------------------------------------------
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

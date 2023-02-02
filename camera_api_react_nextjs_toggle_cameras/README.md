@@ -19,6 +19,33 @@ In this project we will:
 
 ------------------------------------------------------------------
 
+## Work with secured ip domain
+
+source:
+https://github.com/vercel/next.js/discussions/10935#discussioncomment-3624120
+
+brew instal mkcert nss
+mkcert -install
+mkcert localhost 
+
+change localhost to whatever your ip is. same for the name of the expected files:
+localhost.pem
+localhost-key.pem
+
+than login to:
+https://192.168.*.*:4000
+or
+https://localhost:4000
+
+run command npm run dev:https
+
+get your ip with:
+
+ifconfig and look for 192.168.*.*
+ 
+
+------------------------------------------------------------------
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

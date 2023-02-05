@@ -26,7 +26,7 @@ https://github.com/vercel/next.js/discussions/10935#discussioncomment-3624120
 
 brew instal mkcert nss
 mkcert -install
-mkcert localhost 
+mkcert localhost // change this localhost to your ip
 
 change localhost to whatever your ip is. same for the name of the expected files:
 localhost.pem
@@ -41,7 +41,11 @@ run command npm run dev:https
 
 get your ip with:
 
-ifconfig and look for 192.168.*.*
+ifconfig | grep 192.168
+
+than in safari write 
+
+window.location ="https://192.168.*.*:3000"
  
 
 ------------------------------------------------------------------

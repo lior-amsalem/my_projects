@@ -27,6 +27,7 @@ export class CameraFeed extends Component<CameraFeedPropsInterface,CameraFeedSta
             avaialbleCamerasDevices: [],
             selectCamerasDeviceById: ''
         };
+
     }
 
     /**
@@ -59,9 +60,37 @@ export class CameraFeed extends Component<CameraFeedPropsInterface,CameraFeedSta
      * @returns array of objects of all video inputs
      */
     async getListOfCameras() {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const cameras = devices.filter((device) => device.kind === 'videoinput');
-        return cameras;
+        if (!navigator.mediaDevices?.enumerateDevices) {
+            console.log("enumerateDevices() not supported.");
+          } else {
+            let devices;
+
+            try {
+                devices = await navigator.mediaDevices.enumerateDevices()
+
+                const camerasWithPermission = devices.filter((device) => device.kind === 'videoinput').every((device) => device.label === '');
+
+                if (camerasWithPermission) {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: { ideal: 'environment' },
+                        },
+                        audio: false,
+                    })
+                
+                    devices = await navigator.mediaDevices.enumerateDevices();
+
+                    stream.getTracks().forEach((track) => track.stop());
+                }
+            
+                const availableCameras = devices.filter((device) => device.kind === 'videoinput');
+        
+                return availableCameras;
+            } catch(e){
+                console.log('error trying to fetch media devices:', e);
+            }
+        }
+        return [];
     }
 
     /**
@@ -74,11 +103,19 @@ export class CameraFeed extends Component<CameraFeedPropsInterface,CameraFeedSta
             selectCamerasDeviceById: device.deviceId
         });
         const { deviceId } = device;
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { deviceId } });
-        this.videoPlayer.srcObject = stream;
-        this.videoPlayer.play();
-    }
 
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { deviceId } }).catch((e) => console.log('getUserMedia not supported', navigator.mediaDevices, 'with following error:', e));
+
+        if ('srcObject' in this.videoPlayer) {
+            this.videoPlayer.srcObject = stream;
+        } else {
+            console.log('[no supported] couldnt find srcObject on video player');
+        }
+
+        setTimeout(() => {
+            this.videoPlayer.play();
+        }, 10)
+    }
 
     /**
      * capture photo from the canvas and convert it to jpeg base64 and feed it to a callback function coming as a prop
@@ -105,17 +142,17 @@ export class CameraFeed extends Component<CameraFeedPropsInterface,CameraFeedSta
         return (
         <div className={styles.camera_container}>
             <div className={styles.list_of_avaialble_cameras}>
-                {<select onChange={(e) => this.pickCameraDevice(e.currentTarget.value)}>
-                    <option disabled>Pick Camera</option>§
+                {<select onChange={(e) => this.pickCameraDevice(e.currentTarget.value)} value={this.state.selectCamerasDeviceById}>
+                    <option disabled>Select a Camera</option>§
                    {this.state.avaialbleCamerasDevices.map((camera: CameraDeviceInputInfoInterface) => {
-                    return <option key={camera.deviceId} value={camera.deviceId} selected={this.state.selectCamerasDeviceById === camera.deviceId}>{camera.label}</option>
+                    return <option key={camera.deviceId} value={camera.deviceId}>{camera.label}</option>
                    })}
                 </select>}
             </div>
-            <div>
-                <video ref={ref => (this.videoPlayer = ref)} width="680" height="360" />
+            <video ref={ref => (this.videoPlayer = ref)} playsInline={true} width="680" height="360" />
+            <div style={{"textAlign": "center"}}>
+                <button onClick={this.capturePhoto} className={styles.capture_photo}>Capture photo</button>
             </div>
-            <button onClick={this.capturePhoto} className={styles.capture_photo}>Capture photo</button>
             <div className={styles.stage}>
                 <canvas width="680" height="360" ref={ref => (this.canvas = ref)} />
             </div>

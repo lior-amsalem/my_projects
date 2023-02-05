@@ -3,15 +3,17 @@ const path = require('path');
 const fs = require('fs');
 const proxy = require('http-proxy');
 
-const cert = path.join(process.cwd(), 'localhost.pem');
-const key = path.join(process.cwd(), 'localhost-key.pem');
+const HOST = '192.168.1.12'; // or localhost
+
+const cert = path.join(process.cwd(), `${HOST}.pem`);
+const key = path.join(process.cwd(), `${HOST}-key.pem`);
 
 proxy
 	.createServer({
 		xfwd: true,
 		ws: true,
 		target: {
-			host: 'localhost',//'localhost',
+			host: HOST,
 			port: 3001,
 		},
 		ssl: {
